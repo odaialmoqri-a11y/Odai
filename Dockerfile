@@ -1,30 +1,18 @@
 FROM php:8.2-apache
 
-WORKDIR /var/www/html
-
-# نسخ الملفات
-COPY . .
-
-# تثبيت dependencies النظام
+# تثبيت جميع extensions المطلوبة
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
     libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql zip
+    libicu-dev \
+    && docker-php-ext-install intl zip pdo pdo_mysql
 
 # تثبيت Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# تثبيت dependencies المشروع
+WORKDIR /var/www/html
+COPY . .
+
 RUN composer install --no-dev --optimize-autoloader
-
-# إعدادات Apache
-RUN a2enmod rewrite
-
-# تعيين الصلاحيات
-RUN chown -R www-data:www-data /var/www/html/storage
-RUN chmod -R 775 /var/www/html/storage
-
-EXPOSE 80
+RUN chmod -R 775 storage
 
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
