@@ -105,4 +105,7 @@ public/uploads/reports/*
 .env.production
 .env.staging
 /.vapor
-.vapor/*
+.vapor/*.env
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
