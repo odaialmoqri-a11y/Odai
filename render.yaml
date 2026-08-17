@@ -1,16 +1,44 @@
+databases:
+  # قاعدة بيانات PostgreSQL مُدارة من Render (Render لا يوفر MySQL مُداراً)
+  - name: odai-db
+    plan: free
+    ipAllowList: [] # يسمح بالاتصال من خدمات Render فقط
+
 services:
   - type: web
-    name: gegok12-laravel
-    env: php
+    name: odai
+    env: docker
     plan: free
-    buildCommand: |
-      composer install --no-dev --optimize-autoloader
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
-    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
+      - key: APP_NAME
+        value: Odai
+      - key: APP_LOCALE
+        value: ar
+      - key: APP_FAKER_LOCALE
+        value: ar_JO
+      - key: TIMEZONE
+        value: Asia/Riyadh
+      - key: APP_URL
+        sync: false
+      # توليد مفتاح التطبيق تلقائياً (لا يتطلب إدخالاً يدوياً)
+      - key: APP_KEY
+        generateValue: true
+      # الاتصال بقاعدة بيانات PostgreSQL المُدارة عبر DATABASE_URL
+      - key: DATABASE_URL
+        fromDatabase:
+          name: odai-db
+          property: connectionString
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: CACHE_DRIVER
+        value: file
+      - key: SESSION_DRIVER
+        value: file
+      - key: QUEUE_DRIVER
+        value: database

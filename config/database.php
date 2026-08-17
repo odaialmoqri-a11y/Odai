@@ -1,5 +1,30 @@
 <?php
 
+// تفسير DATABASE_URL (التي يوفّرها Render) إلى مكوّنات DB_HOST/PORT/DATABASE/USERNAME/PASSWORD
+// لتعمل الاتصالات الموجودة أدناه دون تعديل، وتدعم MySQL و PostgreSQL.
+if (env("DATABASE_URL")) {
+    $url = parse_url(env("DATABASE_URL"));
+    if ($url !== false && isset($url["host"])) {
+        $scheme = isset($url["scheme"]) ? $url["scheme"] : "pgsql";
+        $driver = ($scheme === "postgres" || $scheme === "postgresql") ? "pgsql" : $scheme;
+        putenv("DB_CONNECTION=".$driver);
+        putenv("DB_HOST=".$url["host"]);
+        if (isset($url["port"])) {
+            putenv("DB_PORT=".$url["port"]);
+        }
+        if (isset($url["user"])) {
+            putenv("DB_USERNAME=".$url["user"]);
+        }
+        if (isset($url["pass"])) {
+            putenv("DB_PASSWORD=".$url["pass"]);
+        }
+        $path = isset($url["path"]) ? ltrim($url["path"], "/") : "";
+        if ($path !== "") {
+            putenv("DB_DATABASE=".$path);
+        }
+    }
+}
+
 return [
 
     /*

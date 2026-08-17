@@ -109,3 +109,10 @@ public/uploads/reports/*
 storage/framework/cache/
 storage/framework/sessions/
 storage/framework/views/
+
+# Logs & debug
+debug.log
+*.log
+
+# Duplicate Render config artifact
+render.yaml.

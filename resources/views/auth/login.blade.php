@@ -14,7 +14,7 @@
       <div class="card-body">
         @if(\Config::get('settings.login_status')==0)
         <div class="alert-box success">
-          Login page under maintenance
+          {{ __('Login page under maintenance') }}
         </div>
         @else
         <form method="POST" action="{{ route('login') }}" aria-label="{{ __('Login') }}">
@@ -44,7 +44,7 @@
 </g> </svg>
                   </span>
                   <input id="email" type="text" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }} px-2 py-2 w-full text-sm focus:outline-none inputAnimation" placeholder="" name="email" value="{{ old('email') }}" required>
-                  <label for="email" class="control-label text-sm">E-Mail Address/ Registration Number</label>
+                  <label for="email" class="control-label text-sm">{{ __('E-Mail Address/ Registration Number') }}</label>
                 </div>
                 
               </div>
@@ -81,7 +81,7 @@
 
                   </span>
                   <input id="password" placeholder="" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }} px-2 py-2 w-full  text-sm focus:outline-none inputAnimation" name="password" required>
-                  <label for="password" class="control-label text-sm">Password</label>
+                  <label for="password" class="control-label text-sm">{{ __('Password') }}</label>
                 </div>
               </div>
               @if ($errors->has('password'))

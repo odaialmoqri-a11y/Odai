@@ -1,6 +1,6 @@
 {{-- SPDX-License-Identifier: MIT --}}
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,7 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Favicon -->
     @include('layouts.partials.favicon')
-    <title>{{ config('app.name', 'GegoK12') }}</title>
+    <title>{{ config('app.name', 'Odai') }}</title>
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
     <!-- Styles -->
