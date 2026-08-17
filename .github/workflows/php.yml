@@ -11,9 +11,9 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    env:
+      COMPOSER_NO_AUDIT: "1"
     steps:
     - uses: actions/checkout@v4
 
@@ -31,9 +31,3 @@ jobs:
 
     - name: Install dependencies
       run: composer update --prefer-dist --no-progress --no-scripts --no-interaction
-
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-    # - name: Run test suite
-    #   run: composer run-script test
