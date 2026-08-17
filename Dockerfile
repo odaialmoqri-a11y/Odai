@@ -51,10 +51,10 @@ COPY . .
 # التحقق من صحة composer.json
 RUN composer validate --no-check-publish
 
-# تثبيت اعتماديات PHP عبر composer update (يحل القيود ويولّد lock نظيف)
-# مع إعادة المحاولة لتلافي أخطاء 504 العابرة من api.github.com
-RUN composer update --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
-    || composer update --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit --retry=3 \
+# تثبيت اعتماديات PHP: install يحترم composer.lock المتزامن (أسرع وأكثر حتمية)
+# مع update كاحتياط لإعادة حل القيود إن كان الـlock غير متزامن
+RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
+    || composer update --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
     || (echo "======== فشل تثبيت اعتماديات composer ========" && exit 1)
 
 # إعداد الصلاحيات لمجلدات التخزين والكاش
