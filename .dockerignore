@@ -1,0 +1,20 @@
+# ملفات لا يجب نسخها إلى صورة Docker (تسريع البناء وتجنّب التداخل)
+vendor
+node_modules
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+phpunit.xml
+phpunit.result.xml
+.idea
+.vscode
+.DS_Store
+Thumbs.db
+*.md
+tests
