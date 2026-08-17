@@ -19,6 +19,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # تثبيت Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# إعدادات Composer لمتانة التحميل (تلافي أخطاء 504 العابرة من GitHub)
+ENV COMPOSER_HTTP_TIMEOUT=120
+ENV COMPOSER_MIRROR_PATH_REPOS=1
+ENV COMPOSER_NO_INTERACTION=1
+
 # إعدادات PHP للإنتاج
 RUN echo "memory_limit=256M" >> /usr/local/etc/php/conf.d/app.ini \
     && echo "upload_max_filesize=64M" >> /usr/local/etc/php/conf.d/app.ini \
@@ -48,7 +53,9 @@ RUN composer validate --no-check-lock --no-check-publish
 
 # تثبيت اعتماديات PHP: update أولاً لإعادة حل القيود dev/alpha/branch
 # (composer.lock هنا غير موثوق بسبب قيود dev-master و x-dev و alpha/beta)
+# مع source fallback (prefer-source) عند فشل تحميل dist (أخطاء 504 العابرة)
 RUN composer update --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
+    || composer update --prefer-source --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
     || composer install --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
     || (echo "[build] فشل تثبيت اعتماديات composer" && exit 1)
 
