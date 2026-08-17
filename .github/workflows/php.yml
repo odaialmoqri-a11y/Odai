@@ -17,6 +17,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: intl, zip, pdo, pdo_mysql, pdo_pgsql, mbstring, xml, gd, exif
+        coverage: none
+
     - name: Validate composer.json
       run: composer validate --no-check-publish --no-check-lock --no-check-all
 
