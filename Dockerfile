@@ -43,11 +43,13 @@ WORKDIR /var/www/html
 COPY . .
 
 # التحقق من سلامة composer.json قبل التثبيت (تشخيص واضح لأي فساد)
-RUN composer validate --strict --no-check-publish || (echo "[build] composer.json غير صالح" && exit 1)
+# التحقق من صحة composer.json فقط (بدون فحص الـlock لأن القيود dev/alpha تجعله غير متزامن)
+RUN composer validate --no-check-lock --no-check-publish
 
-# تثبيت اعتماديات PHP (install يحترم composer.lock؛ update كاحتياط لإعادة حل القيود)
-RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
-    || composer update --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
+# تثبيت اعتماديات PHP: update أولاً لإعادة حل القيود dev/alpha/branch
+# (composer.lock هنا غير موثوق بسبب قيود dev-master و x-dev و alpha/beta)
+RUN composer update --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
+    || composer install --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
     || (echo "[build] فشل تثبيت اعتماديات composer" && exit 1)
 
 # إعداد الصلاحيات لمجلدات التخزين والكاش

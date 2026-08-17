@@ -13,7 +13,7 @@
         "aws/aws-sdk-php-laravel": "dev-master",
         "barryvdh/laravel-dompdf": "^2.0",
         "caneara/axiom": "^3.2",
-        "filament/tables": "^3.0-stable",
+        "filament/tables": "^3.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "jantinnerezo/livewire-alert": "^3.0",
         "kreait/laravel-firebase": "^5.7",
