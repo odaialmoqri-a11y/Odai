@@ -92,7 +92,15 @@
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "audit": {
+            "block-insecure": false
+        },
+        "allow-plugins": {
+            "phpstan/extension-installer": true,
+            "pestphp/pest-plugin": true,
+            "filament/upgrade": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true
