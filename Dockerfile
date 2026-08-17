@@ -47,15 +47,12 @@ WORKDIR /var/www/html
 # نسخ ملفات المشروع
 COPY . .
 
-# التحقق من سلامة composer.json قبل التثبيت (تشخيص واضح لأي فساد)
 # التحقق من صحة composer.json
 RUN composer validate --no-check-publish
 
-# تثبيت اعتماديات PHP: install يحترم composer.lock المتزامن (أسرع وأكثر حتمية)
-# مع update كاحتياط لإعادة حل القيود إن كان الـlock غير متزامن
-RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
-    || composer update --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
-    || (echo "======== فشل تثبيت اعتماديات composer ========" && exit 1)
+# تثبيت اعتماديات PHP عبر composer install (يحترم composer.lock المتزامن)
+# نتوقف فوراً عند الفشل لإظهار رسالة الخطأ الفعلية من composer (بدل إخفائها)
+RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit
 
 # إعداد الصلاحيات لمجلدات التخزين والكاش
 RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views bootstrap/cache \
