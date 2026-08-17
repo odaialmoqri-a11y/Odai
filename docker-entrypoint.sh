@@ -1,37 +1,33 @@
 #!/usr/bin/env bash
-# سكربت بداية تشغيل حاوية Odai
+# سكربت بدائي تشغيل حاوية Odai
 set -e
 
 WORKDIR="/var/www/html"
 cd "$WORKDIR"
 
-# في بيئة Render، تُحقن المتغيّرات مباشرة (DATABASE_URL, APP_KEY, ...).
-# ملف .env المُنسوخ من .env.example يحوي قيم mysql/homestead قديمة تطغى
-# على متغيّرات البيئة، لذلك نحذفه لنسمح لمتغيّرات Render بالتطبيق مباشرة.
-if [ -n "$DATABASE_URL" ]; then
-    rm -f .env
-    echo "[entrypoint] DATABASE_URL موجود (${DATABASE_URL%%@*}@...)"
-else
-    echo "[entrypoint] تحذير: DATABASE_URL غير مضبوط! تحقق من قاعدة البيانات على Render"
-fi
+# طباعة التشخيص أولاً (للمراقبة في سجلّ Render)
+echo "[entrypoint] DATABASE_URL=${DATABASE_URL:+مضبوط}${DATABASE_URL:- غير مضبوط!}"
 echo "[entrypoint] DB_CONNECTION=${DB_CONNECTION:-غير مضبوط}"
 echo "[entrypoint] APP_ENV=${APP_ENV:-غير مضبوط} APP_KEY=${APP_KEY:+مضبوط}"
 
-# إن لم يوجد .env ولم تكن هناك DATABASE_URL، ننشئه من .env.example (للتطوير المحلي)
-if [ ! -f .env ] && [ -z "$DATABASE_URL" ]; then
-    cp .env.example .env
+# في بيئة Render تُحقن المتغيّرات مباشرة. نحذف أي .env قديم (قد يحتوي قيم mysql/homestead
+# تطغى على المتغيّرات) ونحذف الكاش المجمد كلياً قبل أي شيء.
+rm -f .env bootstrap/cache/config.php
+
+# إن لم تكن DATABASE_URL مضبوطة، ننشئ .env محلي من .env.example (للتطوير المحلي فقط).
+if [ -z "$DATABASE_URL" ]; then
+    echo "[entrypoint] تحذير: DATABASE_URL غير مضبوط! تحقق من قاعدة البيانات على Render"
+    [ -f .env.example ] && cp .env.example .env
 fi
 
-# توليد APP_KEY إن لم يكن مُضبوطاً (Render يولّده تلقائياً عبر generateValue)
-if [ -z "$APP_KEY" ] && [ ! -f .env ]; then
-    : # في بيئة Render، APP_KEY يُحقن من المتغيّرات البيئية
-fi
+# توليد APP_KEY إن لم يكن مضبوطاً (Render يولّده تلقائياً عبر generateValue)
 if [ -f .env ] && ! grep -q "^APP_KEY=base64:" .env; then
     php artisan key:generate --force || true
 fi
 
-# مسح الكاش القديم (قد يحوي قيم .env قديمة مجمّدة)
-php artisan config:clear 2>/dev/null || true
+# مسح أي بقايا كاش قديم (لا نعتمد على config:clear لأنه قد يقرأ كاشاً معطوباً)
+rm -f bootstrap/cache/config.php bootstrap/cache/routes.php bootstrap/cache/events.php
+rm -rf storage/framework/cache/data/* storage/framework/sessions/* storage/framework/views/*
 php artisan cache:clear 2>/dev/null || true
 
 # ضمان صلاحيات مجلدات التخزين والكاش والسجلّات
