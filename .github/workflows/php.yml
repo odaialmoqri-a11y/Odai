@@ -30,4 +30,4 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
-      run: composer update --prefer-dist --no-progress --no-scripts --no-interaction --with-all-dependencies --root-reqs
+      run: composer update --prefer-dist --no-progress --no-scripts --no-interaction
