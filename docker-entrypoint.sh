@@ -10,7 +10,12 @@ cd "$WORKDIR"
 # على متغيّرات البيئة، لذلك نحذفه لنسمح لمتغيّرات Render بالتطبيق مباشرة.
 if [ -n "$DATABASE_URL" ]; then
     rm -f .env
+    echo "[entrypoint] DATABASE_URL موجود (${DATABASE_URL%%@*}@...)"
+else
+    echo "[entrypoint] تحذير: DATABASE_URL غير مضبوط! تحقق من قاعدة البيانات على Render"
 fi
+echo "[entrypoint] DB_CONNECTION=${DB_CONNECTION:-غير مضبوط}"
+echo "[entrypoint] APP_ENV=${APP_ENV:-غير مضبوط} APP_KEY=${APP_KEY:+مضبوط}"
 
 # إن لم يوجد .env ولم تكن هناك DATABASE_URL، ننشئه من .env.example (للتطوير المحلي)
 if [ ! -f .env ] && [ -z "$DATABASE_URL" ]; then
