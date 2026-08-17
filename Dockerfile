@@ -48,16 +48,14 @@ WORKDIR /var/www/html
 COPY . .
 
 # التحقق من سلامة composer.json قبل التثبيت (تشخيص واضح لأي فساد)
-# التحقق من صحة composer.json فقط (بدون فحص الـlock لأن القيود dev/alpha تجعله غير متزامن)
-RUN composer validate --no-check-lock --no-check-publish
+# التحقق من صحة composer.json
+RUN composer validate --no-check-publish
 
-# تثبيت اعتماديات PHP: update أولاً لإعادة حل القيود dev/alpha/branch
-# (composer.lock هنا غير موثوق بسبب قيود dev-master و x-dev و alpha/beta)
-# مع source fallback (prefer-source) عند فشل تحميل dist (أخطاء 504 العابرة)
+# تثبيت اعتماديات PHP عبر composer update (يحل القيود ويولّد lock نظيف)
+# مع إعادة المحاولة لتلافي أخطاء 504 العابرة من api.github.com
 RUN composer update --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
-    || composer update --prefer-source --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
-    || composer install --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
-    || (echo "[build] فشل تثبيت اعتماديات composer" && exit 1)
+    || composer update --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit --retry=3 \
+    || (echo "======== فشل تثبيت اعتماديات composer ========" && exit 1)
 
 # إعداد الصلاحيات لمجلدات التخزين والكاش
 RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views bootstrap/cache \
