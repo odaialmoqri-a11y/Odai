@@ -30,7 +30,7 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-interaction || composer update --lock --no-scripts --no-interaction
+      run: composer update --prefer-dist --no-progress --no-scripts --no-interaction
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
