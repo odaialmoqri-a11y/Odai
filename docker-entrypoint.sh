@@ -38,6 +38,10 @@ LOG_CHANNEL=daily
 FILESYSTEM_DRIVER=${FILESYSTEM_DRIVER:-local}
 EOF
     echo "[entrypoint] تم إنشاء .env من متغيّرات Render (DATABASE_URL موجود)"
+    # استخراج host من DATABASE_URL للتشخيص (إخفاء كلمة المرور)
+    DB_HOST_PARSED=$(echo "$DATABASE_URL" | sed -E "s|^[^@]+@||; s|/.*$||; s|:[0-9]+$||")
+    echo "[entrypoint] host المُستخرَج من DATABASE_URL = ${DB_HOST_PARSED:-فارغ!}"
+    echo "[entrypoint] أول 30 حرف من DATABASE_URL: ${DATABASE_URL:0:30}..."
 else
     # تطوير محلي: انسخ .env.example
     echo "[entrypoint] DATABASE_URL غير موجود — استخدام .env.example (تطوير محلي)"
