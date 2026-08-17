@@ -23,6 +23,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_HTTP_TIMEOUT=120
 ENV COMPOSER_MIRROR_PATH_REPOS=1
 ENV COMPOSER_NO_INTERACTION=1
+ENV COMPOSER_NO_AUDIT=1
 
 # إعدادات PHP للإنتاج
 RUN echo "memory_limit=256M" >> /usr/local/etc/php/conf.d/app.ini \
@@ -52,7 +53,7 @@ RUN composer validate --no-check-publish
 
 # تثبيت اعتماديات PHP عبر composer install (يحترم composer.lock المتزامن)
 # نتوقف فوراً عند الفشل لإظهار رسالة الخطأ الفعلية من composer (بدل إخفائها)
-RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit
+RUN composer install --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction
 
 # إعداد الصلاحيات لمجلدات التخزين والكاش
 RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views bootstrap/cache \
