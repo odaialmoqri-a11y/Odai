@@ -1,16 +1,62 @@
 services:
   - type: web
-    name: gegok12-laravel
-    env: php
+    name: odai
+    env: docker
     plan: free
-    buildCommand: |
-      composer install --no-dev --optimize-autoloader
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
-    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
+      - key: APP_NAME
+        value: Odai
+      - key: APP_LOCALE
+        value: ar
+      - key: APP_FAKER_LOCALE
+        value: ar_JO
+      - key: TIMEZONE
+        value: Asia/Riyadh
+      - key: APP_URL
+        sync: false
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        fromService:
+          type: pserv
+          name: odai-db
+          property: host
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_DATABASE
+        value: odai
+      - key: DB_USERNAME
+        value: odai
+      - key: DB_PASSWORD
+        sync: false
+      - key: CACHE_DRIVER
+        value: file
+      - key: SESSION_DRIVER
+        value: file
+      - key: QUEUE_DRIVER
+        value: database
+
+  - type: pserv
+    name: odai-db
+    env: docker
+    plan: free
+    image:
+      url: mysql:8
+    dockerCommand: docker-entrypoint.sh mysqld
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true
+      - key: MYSQL_DATABASE
+        value: odai
+      - key: MYSQL_USER
+        value: odai
+      - key: MYSQL_PASSWORD
+        generateValue: true

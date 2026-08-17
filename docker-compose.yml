@@ -1,0 +1,55 @@
+# Odai — تشغيل محلي عبر Docker Compose
+# الاستخدام: docker compose up -d --build ثم افتح http://localhost:8080
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: odai-app
+    container_name: odai-app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_NAME: Odai
+      APP_LOCALE: ar
+      APP_FAKER_LOCALE: ar_JO
+      TIMEZONE: Asia/Riyadh
+      APP_URL: "http://localhost:8080"
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: odai
+      DB_USERNAME: odai
+      DB_PASSWORD: odai_secret
+      CACHE_DRIVER: file
+      SESSION_DRIVER: file
+      QUEUE_DRIVER: database
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8
+    container_name: odai-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: odai
+      MYSQL_USER: odai
+      MYSQL_PASSWORD: odai_secret
+      MYSQL_ROOT_PASSWORD: root_secret
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - odai-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_secret"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  odai-db-data:
