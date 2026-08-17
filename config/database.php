@@ -1,30 +1,5 @@
 <?php
 
-// تفسير DATABASE_URL (التي يوفّرها Render) إلى مكوّنات DB_HOST/PORT/DATABASE/USERNAME/PASSWORD
-// لتعمل الاتصالات الموجودة أدناه دون تعديل، وتدعم MySQL و PostgreSQL.
-if (env("DATABASE_URL")) {
-    $url = parse_url(env("DATABASE_URL"));
-    if ($url !== false && isset($url["host"])) {
-        $scheme = isset($url["scheme"]) ? $url["scheme"] : "pgsql";
-        $driver = ($scheme === "postgres" || $scheme === "postgresql") ? "pgsql" : $scheme;
-        putenv("DB_CONNECTION=".$driver);
-        putenv("DB_HOST=".$url["host"]);
-        if (isset($url["port"])) {
-            putenv("DB_PORT=".$url["port"]);
-        }
-        if (isset($url["user"])) {
-            putenv("DB_USERNAME=".$url["user"]);
-        }
-        if (isset($url["pass"])) {
-            putenv("DB_PASSWORD=".$url["pass"]);
-        }
-        $path = isset($url["path"]) ? ltrim($url["path"], "/") : "";
-        if ($path !== "") {
-            putenv("DB_DATABASE=".$path);
-        }
-    }
-}
-
 return [
 
     /*
@@ -38,7 +13,11 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    // إن وُجدت DATABASE_URL (التي يوفّرها Render)، نستنتج السائق من بروتوكولها
+    // (postgres/postgresql -> pgsql، وإلا mysql). وإلا نعتمد DB_CONNECTION.
+    'default' => env('DATABASE_URL')
+        ? (str_starts_with(env('DATABASE_URL'), 'postgres') ? 'pgsql' : 'mysql')
+        : env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -48,7 +27,6 @@ return [
     | Here are each of the database connections setup for your application.
     | Of course, examples of configuring each database platform that is
     | supported by Laravel is shown below to make development simple.
-    |
     |
     | All database work in Laravel is done through the PHP PDO facilities
     | so make sure you have the driver for your particular database of
@@ -66,6 +44,7 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'forge'),
@@ -81,6 +60,7 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
+            'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'forge'),

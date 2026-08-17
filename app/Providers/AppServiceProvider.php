@@ -107,12 +107,16 @@ class AppServiceProvider extends ServiceProvider {
         }
         //
 
-        if ( !\App::runningInConsole() && count( Schema::getColumnListing( 'settings' ) ) ) {
-
-            $settings = Setting::all();
-
-            foreach ( $settings as $key => $setting ) {
-                Config::set( 'settings.'.$setting->key, $setting->value );
+        if ( !\App::runningInConsole() ) {
+            try {
+                if ( count( Schema::getColumnListing( 'settings' ) ) ) {
+                    $settings = Setting::all();
+                    foreach ( $settings as $key => $setting ) {
+                        Config::set( 'settings.'.$setting->key, $setting->value );
+                    }
+                }
+            } catch ( \Throwable $e ) {
+                // تجاهل فشل الاتصال بقاعدة البيانات أثناء boot (DB غير جاهزة)
             }
         }
 
