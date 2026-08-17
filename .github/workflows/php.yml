@@ -31,3 +31,10 @@ jobs:
 
     - name: Install dependencies
       run: composer update --prefer-dist --no-progress --no-scripts --no-interaction
+
+    - name: Upload composer.lock
+      uses: actions/upload-artifact@v4
+      with:
+        name: composer-lock
+        path: composer.lock
+        retention-days: 7
