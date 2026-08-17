@@ -42,7 +42,9 @@ WORKDIR /var/www/html
 COPY . .
 
 # تثبيت اعتماديات PHP (بدون dev، بدون scripts لأنها تتطلب قاعدة بيانات في وقت البناء)
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction || true
+# تثبيت الاعتماديات (update لإعادة حل القيود لأن composer.lock قد يكون غير متزامن)
+RUN composer update --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit \
+    || composer install --prefer-dist --no-dev --optimize-autoloader --no-scripts --no-interaction --no-audit || true
 
 # إعداد الصلاحيات لمجلدات التخزين والكاش
 RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views bootstrap/cache \
